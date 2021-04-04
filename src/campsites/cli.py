@@ -22,15 +22,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def create_table_string(data: list[dict[str, str]]):
+def create_table_string(data: list[dict[str, str]]) -> str:
     header = list(data[0].keys())
     values = [list(x.values()) for x in data]
     output = [header] + values
     tab_length = 4
     lengths = [max(len(str(x)) for x in line) + tab_length for line in zip(*output)]
     row_formatter = "".join(["{:" + str(x) + "s}" for x in lengths])
-    output_str = "\n".join([row_formatter.format(*row) for row in output])
-    return output_str
+    table_string = "\n".join([row_formatter.format(*row) for row in output])
+    return table_string
 
 
 def create_log(
@@ -117,7 +117,7 @@ def main(
     api: str,
     check_every: int,
     notify: bool,
-):
+) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
 
     Note: for `reservecalifornia`, campground argument must refer to the facility

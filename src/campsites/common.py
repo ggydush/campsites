@@ -1,11 +1,11 @@
 import json
 import requests
-from typing import Optional
+from typing import Any, Optional
 
 from fake_useragent import UserAgent
 
 
-def make_get_request(url: str, params: Optional[dict[str, str]] = None):
+def make_get_request(url: str, params: Optional[dict[str, str]] = None) -> Any:
     headers: dict[str, str] = {"User-Agent": UserAgent().chrome}
     response = requests.get(url, params=params, headers=headers)
     if response.status_code != 200:
@@ -13,7 +13,7 @@ def make_get_request(url: str, params: Optional[dict[str, str]] = None):
     return json.loads(response.content)
 
 
-def make_post_request(url: str, data: dict[str, str]):
+def make_post_request(url: str, data: dict[str, str]) -> Any:
     response = requests.post(
         url,
         data=json.dumps(data),

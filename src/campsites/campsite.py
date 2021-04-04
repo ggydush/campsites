@@ -19,7 +19,7 @@ class AvailableCampsite:
     def __lt__(self, other: AvailableCampsite) -> bool:
         return self.date < other.date
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.date, self.campsite.campsite))
 
 
