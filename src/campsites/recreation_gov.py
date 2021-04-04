@@ -36,10 +36,10 @@ class RecreationGovCampsite:
     campsite_reserve_type: str
 
     def get_availabilities(self) -> list[datetime]:
-        availabilities = []
-        for date, availability in self.availabilities.items():
+        availabilities: list[datetime] = []
+        for date_string, availability in self.availabilities.items():
             if availability in IS_AVAILABLE_KEYWORDS:
-                date = datetime.fromisoformat(date[:-1])
+                date = datetime.fromisoformat(date_string[:-1])
                 availabilities.append(date)
         return availabilities
 
@@ -74,7 +74,7 @@ def get_all_campsites(
     start_date: datetime,
     months: int,
 ) -> list[RecreationGovCampsite]:
-    all_sites = []
+    all_sites: list[RecreationGovCampsite] = []
     for _ in range(months):
         date_string = convert_date_to_string(start_date)
         params = {"start_date": date_string}
@@ -91,7 +91,7 @@ def get_all_campsites(
 def rg_get_all_available_campsites(
     campground_id: str, start_date: datetime, months: int
 ) -> list[AvailableCampsite]:
-    results = []
+    results: list[AvailableCampsite] = []
     campsites = get_all_campsites(
         campground_id=campground_id, start_date=start_date, months=months
     )

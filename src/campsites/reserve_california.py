@@ -45,7 +45,7 @@ class ReserveCaliforniaCampsite:
     Slices: dict[str, Any]
 
     def get_availabilities(self) -> list[datetime]:
-        availabilities = []
+        availabilities: list[datetime] = []
         for campsite in self.Slices.values():
             if campsite["IsFree"]:
                 date_string = campsite["Date"]
@@ -58,7 +58,7 @@ class ReserveCaliforniaCampsite:
 
 
 def get_campground_id(query: str, url: str = f"{BASE_URL}{SEARCH_ENDPOINT}") -> str:
-    url_with_query = f"{url}{requests.utils.quote(query)}"
+    url_with_query = f"{url}{requests.utils.quote(query)}"  # type: ignore
     response = make_get_request(url_with_query)
     if not response:
         raise ValueError(f"Campground: {query} not found. Try being more specific.")
@@ -83,14 +83,14 @@ def get_facility_ids(
             f"Could not find facilities in {campground} - try being more specific."
         )
     facilities = response["SelectedPlace"]["Facilities"]
-    facility_ids = []
+    facility_ids: list[dict[str, str]] = []
     for facility in facilities.values():
         data = {
             "campground": facility["Name"],
             "facility_id": str(facility["FacilityId"]),
         }
         facility_ids.append(data)
-    return sorted(facility_ids, key=lambda x: x.get("campground"))
+    return sorted(facility_ids, key=lambda x: x.get("campground", ""))
 
 
 def get_all_campsites(
@@ -105,7 +105,7 @@ def get_all_campsites(
     response = make_post_request(url, data)
     campground = response["Facility"]["Name"]
     campsites = response["Facility"]["Units"].values()
-    results = []
+    results: list[ReserveCaliforniaCampsite] = []
     for site in campsites:
         site["Campground"] = campground
         results.append(ReserveCaliforniaCampsite(**site))
@@ -115,7 +115,7 @@ def get_all_campsites(
 def rc_get_all_available_campsites(
     campground_id: str, start_date: datetime, months: int
 ) -> list[AvailableCampsite]:
-    results = []
+    results: list[AvailableCampsite] = []
     campsites = get_all_campsites(
         campground_id=campground_id, start_date=start_date, months=months
     )

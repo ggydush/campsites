@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 import itertools
@@ -14,7 +16,7 @@ class AvailableCampsite:
     date: datetime
     campsite: Campsite
 
-    def __lt__(self, other):
+    def __lt__(self, other: AvailableCampsite) -> bool:
         return self.date < other.date
 
     def __hash__(self):
@@ -28,12 +30,15 @@ def filter_to_criteria(
     require_same_site: bool,
 ) -> list[AvailableCampsite]:
     if require_same_site:
-        available_sites = itertools.groupby(
-            all_available, key=lambda x: x.campsite.campsite
-        )
+        available_sites = [
+            (x, list(y))
+            for x, y in itertools.groupby(
+                all_available, key=lambda x: x.campsite.campsite
+            )
+        ]
     else:
         available_sites = [("All", all_available)]
-    passes_criteria = []
+    passes_criteria: list[AvailableCampsite] = []
     for _, sites_available in available_sites:
         sites_available = sorted(sites_available)
         date_groups = itertools.groupby(sites_available, key=lambda x: x.date)
@@ -41,7 +46,7 @@ def filter_to_criteria(
         matches = [x for x, _ in date_groups if x.strftime("%A") in weekdays]
         for match_date in matches:
             all_nights_available = True
-            available = []
+            available: list[AvailableCampsite] = []
             for _ in range(nights):
                 night_availability = [
                     x for x in sites_available if x.date == match_date
@@ -60,7 +65,7 @@ def filter_to_criteria(
 
 def get_table_data(available_sites: list[AvailableCampsite]) -> list[dict[str, str]]:
     sorted_sites = sorted(available_sites, key=lambda x: (x.date, x.campsite.campsite))
-    all_data = []
+    all_data: list[dict[str, str]] = []
     for available_site in sorted_sites:
         data = {
             "campground": available_site.campsite.campground,

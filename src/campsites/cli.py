@@ -1,6 +1,7 @@
 from datetime import datetime
 import logging
 import time
+from typing import Callable
 
 import click
 
@@ -33,7 +34,9 @@ def create_table_string(data: list[dict[str, str]]):
 
 
 def create_log(
-    table_data: list[dict[str, str]], campground_id: str, get_campground_url
+    table_data: list[dict[str, str]],
+    campground_id: str,
+    get_campground_url: Callable[[str], str],
 ) -> str:
     return (
         f"Found Availability:\n\n{create_table_string(table_data)}\n"
@@ -105,7 +108,16 @@ def create_log(
     "-c", "--campground", help="Name of campground to search for availability", type=str
 )
 @click.command()
-def main(campground, nights, day, require_same_site, months, api, check_every, notify):
+def main(
+    campground: str,
+    nights: int,
+    day: list[str],
+    require_same_site: bool,
+    months: int,
+    api: str,
+    check_every: int,
+    notify: bool,
+):
     """Search for campsite availability from recreation.gov or reservecalifornia.
 
     Note: for `reservecalifornia`, campground argument must refer to the facility
