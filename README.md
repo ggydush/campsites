@@ -2,8 +2,6 @@
 
 Small tool to check for campsite availability and notify via text message using Twilio.
 
-
-
 ```
 Usage: find-campsites [OPTIONS]
 
