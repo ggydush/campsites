@@ -4,32 +4,21 @@ import time
 
 import click
 
-
 from campsites.messaging import send_message
+from campsites.campsite import filter_to_criteria, get_table_data
 from campsites.recreation_gov import (
     get_campground_id,
-    get_campground_url,
-    get_available_campsite_matching_criteria,
-    AvailableSite,
+    rg_get_campground_url,
+    rg_get_all_available_campsites,
 )
-
+from campsites.reserve_california import (
+    get_facility_ids,
+    rc_get_campground_url,
+    rc_get_all_available_campsites,
+)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-def get_table_data(available_sites: list[AvailableSite]):
-    sorted_sites = sorted(available_sites, key=lambda x: (x.date, x.campsite.site))
-    all_data = []
-    for available_site in sorted_sites:
-        data = {
-            "loop": available_site.campsite.loop,
-            "site": available_site.campsite.site,
-            "date": available_site.date.strftime("%m/%d/%y"),
-            "weekday": available_site.date.strftime("%A"),
-        }
-        all_data.append(data)
-    return all_data
 
 
 def create_table_string(data: list[dict[str, str]]):
@@ -41,6 +30,15 @@ def create_table_string(data: list[dict[str, str]]):
     row_formatter = "".join(["{:" + str(x) + "s}" for x in lengths])
     output_str = "\n".join([row_formatter.format(*row) for row in output])
     return output_str
+
+
+def create_log(
+    table_data: list[dict[str, str]], campground_id: str, get_campground_url
+) -> str:
+    return (
+        f"Found Availability:\n\n{create_table_string(table_data)}\n"
+        + f"Reserve a spot here: {get_campground_url(campground_id)}"
+    )
 
 
 @click.option(
@@ -61,6 +59,13 @@ def create_table_string(data: list[dict[str, str]]):
     type=int,
     default=60,
     show_default=True,
+)
+@click.option(
+    "--api",
+    help="Reservation API to use",
+    default="recreation.gov",
+    show_default=True,
+    type=click.Choice(["recreation.gov", "reservecalifornia"]),
 )
 @click.option(
     "-m",
@@ -100,37 +105,57 @@ def create_table_string(data: list[dict[str, str]]):
     "-c", "--campground", help="Name of campground to search for availability", type=str
 )
 @click.command()
-def main(campground, nights, day, require_same_site, months, check_every, notify):
-    """Search for campsite availability from recreation.gov."""
+def main(campground, nights, day, require_same_site, months, api, check_every, notify):
+    """Search for campsite availability from recreation.gov or reservecalifornia.
+
+    Note: for `reservecalifornia`, campground argument must refer to the facility
+    ID of the campsite. This is tricky to get from the website, so try using
+    this tool but enter the park you are interested in as the campground.
+    This should return a table of campsites and their associated facility ID.
+
+    \b
+    Examples:
+    find-campsites -c "Kirby Cove" -d Friday -d Saturday
+    find-campsites -c "Millerton Lake SRA" --api reservecalifornia
+    find-campsites -c 1120 --api reservecalifornia
+    """
     if nights < 1:
         raise ValueError("Nights must be greater than 1.")
     while True:
         notified = False
         start_date = datetime.today()
-        campground_id = get_campground_id(campground)
-        all_results = []
-        for months in range(months):
-            results = get_available_campsite_matching_criteria(
-                campground_id=campground_id,
-                start_date=start_date,
-                weekdays=day,
-                nights=nights,
-                require_same_site=require_same_site,
-            )
-            all_results.extend(results)
-            start_date = start_date.replace(month=start_date.month + 1)
-        if all_results:
-            table_data = get_table_data(all_results)
-            short_table_data = table_data[0:2]
-            log_message = (
-                f"Found Availability:\n\n{create_table_string(table_data)}\n"
-                + f"Reserve a spot here: {get_campground_url(campground_id)}"
-            )
+        if api == "reservecalifornia":
+            if not campground.isdigit():
+                logger.info(
+                    "ReserveCalifornia must use facility ID. Searching for facility "
+                    + "IDs using provided `campground_id` (note: this must be the "
+                    + "park that the campground is in)"
+                )
+                facility_id_table = create_table_string(get_facility_ids(campground))
+                logger.info(f"Found facilities in park:\n\n{facility_id_table}\n")
+                break
+
+            campground_id = campground
+            get_campground_url = rc_get_campground_url
+            get_all_available_campsites = rc_get_all_available_campsites
+        else:
+            campground_id = get_campground_id(campground)
+            get_campground_url = rg_get_campground_url
+            get_all_available_campsites = rg_get_all_available_campsites
+        available = get_all_available_campsites(
+            campground_id=campground_id, start_date=start_date, months=months
+        )
+        available = filter_to_criteria(
+            available, weekdays=day, nights=nights, require_same_site=require_same_site
+        )
+        if available:
+            table_data = get_table_data(available)
+            log_message = create_log(table_data, campground_id, get_campground_url)
             logger.info(log_message)
             if notify and not notified:
-                text_message = (
-                    f"Found Availability:\n\n{create_table_string(short_table_data)}\n"
-                    + f"Reserve a spot here: {get_campground_url(campground_id)}"
+                # Text message has character max limit 1600, so we shorten table
+                text_message = create_log(
+                    table_data[0:2], campground_id, get_campground_url
                 )
                 send_message(text_message)
                 notified = True
