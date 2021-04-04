@@ -1,0 +1,5 @@
+.env
+.python-version
+.vscode
+.coverage
+*.pyc
