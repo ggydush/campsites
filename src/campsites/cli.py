@@ -142,8 +142,8 @@ def main(
     if nights < 1:
         raise ValueError("Nights must be greater than 1.")
     campgrounds = campground
+    notified: defaultdict[str, bool] = defaultdict(lambda: False)
     while True:
-        notified: defaultdict[str, bool] = defaultdict(lambda: False)
         start_date = datetime.today()
         for campground in campgrounds:
             if api == "reservecalifornia":
