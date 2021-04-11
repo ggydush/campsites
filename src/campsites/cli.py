@@ -1,8 +1,9 @@
 from collections import defaultdict
 from datetime import datetime
+from datetime import date
 import logging
 import time
-from typing import Callable
+from typing import Callable, Set
 
 import click
 
@@ -142,7 +143,7 @@ def main(
     if nights < 1:
         raise ValueError("Nights must be greater than 1.")
     campgrounds = campground
-    notified: defaultdict[str, bool] = defaultdict(lambda: False)
+    notified: defaultdict[str, Set[date]] = defaultdict(set)
     while True:
         start_date = datetime.today()
         for campground in campgrounds:
@@ -179,13 +180,14 @@ def main(
                 table_data = get_table_data(available)
                 log_message = create_log(table_data, campground_id, get_campground_url)
                 logger.info(log_message)
-                if notify and not notified[campground]:
+                # Only notify if we have not sent a notification yet today
+                if notify and start_date.date() not in notified[campground]:
                     # Text message has character max limit 1600, so we shorten table
                     text_message = create_log(
                         table_data[0:2], campground_id, get_campground_url
                     )
                     send_message(text_message)
-                    notified[campground] = True
+                    notified[campground].add(start_date.date())
             else:
                 logger.info(
                     f"No availability found :( trying again in {check_every} minutes"
