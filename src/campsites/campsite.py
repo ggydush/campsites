@@ -28,6 +28,7 @@ def filter_to_criteria(
     weekdays: list[str],
     nights: int,
     require_same_site: bool,
+    ignore: Optional[str] = None,
 ) -> list[AvailableCampsite]:
     if require_same_site:
         available_sites = [
@@ -49,7 +50,9 @@ def filter_to_criteria(
             available: list[AvailableCampsite] = []
             for _ in range(nights):
                 night_availability = [
-                    x for x in sites_available if x.date == match_date
+                    x
+                    for x in sites_available
+                    if x.date == match_date and x.campsite.campsite != ignore
                 ]
                 if not night_availability:
                     all_nights_available = False

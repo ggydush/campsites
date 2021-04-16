@@ -53,6 +53,9 @@ def create_log(
     help="Send text message if campsite is available",
 )
 @click.option(
+    "--ignore", type=str, default=None, help="Specific campsite name to ignore"
+)
+@click.option(
     "--require_same_site",
     is_flag=True,
     default=False,
@@ -122,6 +125,7 @@ def main(
     months: int,
     api: str,
     check_every: int,
+    ignore: str,
     notify: bool,
 ) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
@@ -174,6 +178,7 @@ def main(
                 available,
                 weekdays=day,
                 nights=nights,
+                ignore=ignore,
                 require_same_site=require_same_site,
             )
             if available:

@@ -40,6 +40,7 @@ class ReserveCaliforniaCampsite:
     UnitTypeId: int
     VehicleLength: int
     OrderBy: int
+    OrderByRaw: int
     SliceCount: int
     AvailableCount: int
     Slices: dict[str, Any]
@@ -104,6 +105,9 @@ def get_all_campsites(
     url = f"{BASE_URL}{AVAILABILITY_ENDPOINT}"
     response = make_post_request(url, data)
     campground = response["Facility"]["Name"]
+    if not campground:
+        raise ValueError(f"Could not find campground with ID: {campground_id}")
+    logger.info(f"Found campground: {campground} (campground id: {campground_id})")
     campsites = response["Facility"]["Units"].values()
     results: list[ReserveCaliforniaCampsite] = []
     for site in campsites:
