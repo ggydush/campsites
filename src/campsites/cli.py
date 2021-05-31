@@ -47,6 +47,18 @@ def create_log(
 
 
 @click.option(
+    "--sub_campground",
+    type=str,
+    help="Some campgrounds have sub-campgrounds that you can specify with this argument",
+    default=None,
+)
+@click.option(
+    "--calendar_date",
+    help="Specific date to start reservation mm/dd/yyyy",
+    type=str,
+    default=None,
+)
+@click.option(
     "--notify",
     is_flag=True,
     default=False,
@@ -127,6 +139,8 @@ def main(
     check_every: int,
     ignore: str,
     notify: bool,
+    calendar_date: date,
+    sub_campground: str,
 ) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
 
@@ -150,6 +164,8 @@ def main(
     notified: defaultdict[str, Set[date]] = defaultdict(set)
     while True:
         start_date = datetime.today()
+        if calendar_date:
+            calendar_date = datetime.strptime(calendar_date, "%m/%d/%Y")  # type: ignore
         for campground in campgrounds:
             if api == "reservecalifornia":
                 if not campground.isdigit():
@@ -180,6 +196,8 @@ def main(
                 nights=nights,
                 ignore=ignore,
                 require_same_site=require_same_site,
+                calendar_date=calendar_date,
+                sub_campground=sub_campground,
             )
             if available:
                 table_data = get_table_data(available)
