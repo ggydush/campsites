@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
-from dataclasses import dataclass
 import itertools
-from typing import Optional
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import List, Optional
 
 
 @dataclass
@@ -30,7 +30,7 @@ def filter_to_criteria(
     nights: int,
     require_same_site: bool,
     ignore: Optional[str] = None,
-    calendar_date: Optional[datetime] = None,
+    calendar_dates: Optional[List[datetime]] = None,
     sub_campground: Optional[str] = None,
 ) -> list[AvailableCampsite]:
     if require_same_site:
@@ -43,6 +43,7 @@ def filter_to_criteria(
     else:
         available_sites = [("All", all_available)]
     passes_criteria: list[AvailableCampsite] = []
+    dates = [x.date() for x in calendar_dates] if calendar_dates else []
     for _, sites_available in available_sites:
         sites_available = sorted(sites_available)
         if sub_campground:
@@ -50,8 +51,8 @@ def filter_to_criteria(
                 x for x in sites_available if x.campsite.campground == sub_campground
             ]
         date_groups = itertools.groupby(sites_available, key=lambda x: x.date)
-        if calendar_date:
-            matches = [x for x, _ in date_groups if x.date() == calendar_date.date()]
+        if dates:
+            matches = [x for x, _ in date_groups if x.date() in dates]
         else:
             matches = [x for x, _ in date_groups if x.strftime("%A") in weekdays]
         for match_date in matches:

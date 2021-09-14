@@ -1,23 +1,22 @@
-from collections import defaultdict
-from datetime import datetime
-from datetime import date
 import logging
 import time
+from collections import defaultdict
+from datetime import date, datetime
 from typing import Callable, Set
 
 import click
 
-from campsites.messaging import send_message
 from campsites.campsite import filter_to_criteria, get_table_data
+from campsites.messaging import send_message
 from campsites.recreation_gov import (
     get_campground_id,
-    rg_get_campground_url,
     rg_get_all_available_campsites,
+    rg_get_campground_url,
 )
 from campsites.reserve_california import (
     get_facility_ids,
-    rc_get_campground_url,
     rc_get_all_available_campsites,
+    rc_get_campground_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -54,9 +53,10 @@ def create_log(
 )
 @click.option(
     "--calendar_date",
-    help="Specific date to start reservation mm/dd/yyyy",
+    help="Specific date to start reservation mm/dd/yyyy (can specify multiple)",
     type=str,
     default=None,
+    multiple=True,
 )
 @click.option(
     "--notify",
@@ -166,7 +166,9 @@ def main(
         try:
             start_date = datetime.today()
             if calendar_date:
-                calendar_date = datetime.strptime(calendar_date, "%m/%d/%Y")  # type: ignore
+                dates = [datetime.strptime(x, "%m/%d/%Y") for x in calendar_date]  # type: ignore
+            else:
+                dates = []
             for campground in campgrounds:
                 if api == "reservecalifornia":
                     if not campground.isdigit():
@@ -199,7 +201,7 @@ def main(
                     nights=nights,
                     ignore=ignore,
                     require_same_site=require_same_site,
-                    calendar_date=calendar_date,
+                    calendar_dates=dates,
                     sub_campground=sub_campground,
                 )
                 if available:
