@@ -3,7 +3,9 @@ name = "campsites"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
-include = ["src/campsites/py.typed"]
+packages = [
+  { include = "campsites" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"

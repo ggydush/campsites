@@ -1,11 +1,12 @@
+import dataclasses
+import logging
 from dataclasses import dataclass
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
-import logging
 
-from campsites.campsite import Campsite, AvailableCampsite
+from campsites.campsite import AvailableCampsite, Campsite
 from campsites.common import make_get_request
-
 
 logging.basicConfig(
     format="%(levelname)s\t%(asctime)s\t%(message)s", level=logging.INFO
@@ -81,9 +82,10 @@ def get_all_campsites(
         url = f"{BASE_URL}{AVAILABILITY_ENDPOINT}{campground_id}/month?"
         # url = f"{BASE_URL}/camps/availability/campground/{campground_id}/month?"
         data = make_get_request(url, params)
-        all_sites.extend(
-            [RecreationGovCampsite(**site) for site in data["campsites"].values()]
-        )
+        field_names = [x.name for x in dataclasses.fields(RecreationGovCampsite)]
+        for site in data["campsites"].values():
+            site_data = {field: site[field] for field in field_names}
+            all_sites.append(RecreationGovCampsite(**site_data))
         start_date = start_date + relativedelta(months=1)
     return all_sites
 
