@@ -31,7 +31,7 @@ def filter_to_criteria(
     require_same_site: bool,
     ignore: Optional[str] = None,
     calendar_dates: Optional[List[datetime]] = None,
-    sub_campground: Optional[str] = None,
+    sub_campgrounds: Optional[List[str]] = None,
 ) -> list[AvailableCampsite]:
     if require_same_site:
         available_sites = [
@@ -46,9 +46,9 @@ def filter_to_criteria(
     dates = [x.date() for x in calendar_dates] if calendar_dates else []
     for _, sites_available in available_sites:
         sites_available = sorted(sites_available)
-        if sub_campground:
+        if sub_campgrounds:
             sites_available = [
-                x for x in sites_available if x.campsite.campground == sub_campground
+                x for x in sites_available if x.campsite.campground in sub_campgrounds
             ]
         date_groups = itertools.groupby(sites_available, key=lambda x: x.date)
         if dates:

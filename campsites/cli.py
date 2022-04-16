@@ -50,6 +50,7 @@ def create_log(
     type=str,
     help="Some campgrounds have sub-campgrounds that you can specify with this argument",
     default=None,
+    multiple=True,
 )
 @click.option(
     "--calendar_date",
@@ -77,7 +78,7 @@ def create_log(
     "--check_every",
     help="Minutes to wait before checking again",
     type=int,
-    default=60,
+    default=5,
     show_default=True,
 )
 @click.option(
@@ -140,7 +141,7 @@ def main(
     ignore: str,
     notify: bool,
     calendar_date: date,
-    sub_campground: str,
+    sub_campground: list[str],
 ) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
 
@@ -202,7 +203,7 @@ def main(
                     ignore=ignore,
                     require_same_site=require_same_site,
                     calendar_dates=dates,
-                    sub_campground=sub_campground,
+                    sub_campgrounds=sub_campground,
                 )
                 if available:
                     table_data = get_table_data(available)
