@@ -46,13 +46,13 @@ def create_log(
 
 
 @click.option(
-    "--sub_campground",
+    "--sub-campground",
     type=str,
     help="Some campgrounds have sub-campgrounds that you can specify with this argument",
     default=None,
 )
 @click.option(
-    "--calendar_date",
+    "--calendar-date",
     help="Specific date to start reservation mm/dd/yyyy (can specify multiple)",
     type=str,
     default=None,
@@ -68,13 +68,13 @@ def create_log(
     "--ignore", type=str, default=None, help="Specific campsite name to ignore"
 )
 @click.option(
-    "--require_same_site",
+    "--require-same-site",
     is_flag=True,
     default=False,
     help="Require campsite to be the same over all nights (no switching campsites)",
 )
 @click.option(
-    "--check_every",
+    "--check-every",
     help="Minutes to wait before checking again",
     type=int,
     default=60,
@@ -139,7 +139,7 @@ def main(
     check_every: int,
     ignore: str,
     notify: bool,
-    calendar_date: date,
+    calendar_date: list[str],
     sub_campground: str,
 ) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
@@ -151,7 +151,8 @@ def main(
 
     \b
     Examples:
-    # Search for Kirby Cove and Hawk Campground for Friday or Saturday availability this month
+    # Search for Kirby Cove and Hawk Campground for Friday or Saturday availability
+    # this month
     find-campsites -c "Kirby Cove" -c "Hawk Campground" -d Friday -d Saturday
     # Search for facility IDs in Millerton Lake SRA
     find-campsites -c "Millerton Lake SRA" --api reservecalifornia
@@ -166,16 +167,16 @@ def main(
         try:
             start_date = datetime.today()
             if calendar_date:
-                dates = [datetime.strptime(x, "%m/%d/%Y") for x in calendar_date]  # type: ignore
+                dates = [datetime.strptime(x, "%m/%d/%Y") for x in calendar_date]
             else:
                 dates = []
             for campground in campgrounds:
                 if api == "reservecalifornia":
                     if not campground.isdigit():
                         logger.info(
-                            "ReserveCalifornia must use facility ID. Searching for facility "
-                            + "IDs using provided `campground_id` (note: this must be the "
-                            + "park that the campground is in)"
+                            "ReserveCalifornia must use facility ID. Searching for "
+                            + "facility IDs using provided `campground_id` (note: this "
+                            + "must be the park that the campground is in)"
                         )
                         facility_id_table = create_table_string(
                             get_facility_ids(campground)
@@ -220,7 +221,8 @@ def main(
                         notified[campground].add(start_date.date())
                 else:
                     logger.info(
-                        f"No availability found :( trying again in {check_every} minutes"
+                        f"No availability found :( trying again in {check_every} "
+                        + "minutes."
                     )
             time.sleep(60 * check_every)
         except ConnectionError as e:
