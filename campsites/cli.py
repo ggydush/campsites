@@ -66,7 +66,10 @@ def log_and_text_error_message(
 @click.option(
     "--sub-campground",
     type=str,
-    help="Some campgrounds have sub-campgrounds that you can specify with this argument",
+    help=(
+        "Some campgrounds have sub-campgrounds that you can specify with this argument "
+        + "(can specify multiple)"
+    ),
     default=None,
     multiple=True,
 )
@@ -84,7 +87,10 @@ def log_and_text_error_message(
     help="Send text message if campsite is available",
 )
 @click.option(
-    "--ignore", type=str, default=None, help="Specific campsite name to ignore"
+    "--ignore",
+    type=str,
+    help="Specific campsite name to ignore (can specify multiple)",
+    multiple=True,
 )
 @click.option(
     "--require-same-site",
@@ -156,7 +162,7 @@ def main(
     months: int,
     api: str,
     check_every: int,
-    ignore: str,
+    ignore: list[str],
     notify: bool,
     calendar_date: list[str],
     sub_campground: list[str],

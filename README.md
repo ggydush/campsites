@@ -43,13 +43,16 @@ Options:
   --require-same-site             Require campsite to be the same over all
                                   nights (no switching campsites)
 
-  --ignore TEXT                   Specific campsite name to ignore
+  --ignore TEXT                   Specific campsite name to ignore (can
+                                  specify multiple)
+
   --notify                        Send text message if campsite is available
   --calendar-date TEXT            Specific date to start reservation
                                   mm/dd/yyyy (can specify multiple)
 
   --sub-campground TEXT           Some campgrounds have sub-campgrounds that
-                                  you can specify with this argument
+                                  you can specify with this argument (can
+                                  specify multiple)
 
   --help                          Show this message and exit.
   ```
