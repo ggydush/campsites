@@ -45,6 +45,24 @@ def create_log(
     )
 
 
+def log_and_text_error_message(
+    message: str, error: str, check_every: int, notified_errors: Set[str]
+) -> None:
+    date = str(datetime.now().date())
+    error_message = (
+        f"{message} Trying again in {check_every} minutes.\n"
+        f"Error: {error}\n"
+        f"Date: {date}"
+    )
+    logger.error(error_message)
+    if error_message not in notified_errors:
+        try:
+            send_message(error_message)
+            notified_errors.add(error_message)
+        except Exception:
+            pass
+
+
 @click.option(
     "--sub_campground",
     type=str,
@@ -163,72 +181,85 @@ def main(
         raise ValueError("Nights must be greater than 1.")
     campgrounds = campground
     notified: defaultdict[str, Set[date]] = defaultdict(set)
+    notified_errors: Set[str] = set()
     while True:
-        try:
-            start_date = datetime.today()
-            if calendar_date:
-                dates = [datetime.strptime(x, "%m/%d/%Y") for x in calendar_date]  # type: ignore
-            else:
-                dates = []
-            for campground in campgrounds:
-                if api == "reservecalifornia":
-                    if not campground.isdigit():
-                        logger.info(
-                            "ReserveCalifornia must use facility ID. Searching for facility "
-                            + "IDs using provided `campground_id` (note: this must be the "
-                            + "park that the campground is in)"
-                        )
-                        facility_id_table = create_table_string(
-                            get_facility_ids(campground)
-                        )
-                        logger.info(
-                            f"Found facilities in park:\n\n{facility_id_table}\n"
-                        )
-                        break
+        start_date = datetime.today()
+        if calendar_date:
+            dates = [datetime.strptime(x, "%m/%d/%Y") for x in calendar_date]  # type: ignore
+        else:
+            dates = []
+        for campground in campgrounds:
+            if api == "reservecalifornia":
+                if not campground.isdigit():
+                    logger.info(
+                        "ReserveCalifornia must use facility ID. Searching for facility "
+                        + "IDs using provided `campground_id` (note: this must be the "
+                        + "park that the campground is in)"
+                    )
+                    facility_id_table = create_table_string(
+                        get_facility_ids(campground)
+                    )
+                    logger.info(f"Found facilities in park:\n\n{facility_id_table}\n")
+                    break
 
-                    campground_id = campground
-                    get_campground_url = rc_get_campground_url
-                    get_all_available_campsites = rc_get_all_available_campsites
-                else:
-                    campground_id = get_campground_id(campground)
-                    get_campground_url = rg_get_campground_url
-                    get_all_available_campsites = rg_get_all_available_campsites
+                get_campground_url = rc_get_campground_url
+                get_all_available_campsites = rc_get_all_available_campsites
+            else:
+                get_campground_url = rg_get_campground_url
+                get_all_available_campsites = rg_get_all_available_campsites
+            try:
+                campground_id = (
+                    campground
+                    if api == "reservecalifornia"
+                    else get_campground_id(campground)
+                )
                 available = get_all_available_campsites(
                     campground_id=campground_id, start_date=start_date, months=months
                 )
-                available = filter_to_criteria(
-                    available,
-                    weekdays=day,
-                    nights=nights,
-                    ignore=ignore,
-                    require_same_site=require_same_site,
-                    calendar_dates=dates,
-                    sub_campgrounds=sub_campground,
+            except Exception as e:
+                log_and_text_error_message(
+                    message="Failed to retrieve availability.",
+                    error=str(e),
+                    check_every=check_every,
+                    notified_errors=notified_errors,
                 )
-                if available:
-                    table_data = get_table_data(available)
-                    log_message = create_log(
-                        table_data, campground_id, get_campground_url
+                continue
+            available = filter_to_criteria(
+                available,
+                weekdays=day,
+                nights=nights,
+                ignore=ignore,
+                require_same_site=require_same_site,
+                calendar_dates=dates,
+                sub_campgrounds=sub_campground,
+            )
+            if available:
+                table_data = get_table_data(available)
+                log_message = create_log(table_data, campground_id, get_campground_url)
+                logger.info(log_message)
+                # Only notify if we have not sent a notification yet today
+                if notify and start_date.date() not in notified[campground]:
+                    # Text message has character max limit 1600, so we shorten table
+                    text_message = create_log(
+                        table_data[0:2], campground_id, get_campground_url
                     )
-                    logger.info(log_message)
-                    # Only notify if we have not sent a notification yet today
-                    if notify and start_date.date() not in notified[campground]:
-                        # Text message has character max limit 1600, so we shorten table
-                        text_message = create_log(
-                            table_data[0:2], campground_id, get_campground_url
-                        )
+                    try:
                         send_message(text_message)
-                        notified[campground].add(start_date.date())
-                else:
-                    logger.info(
-                        f"No availability found :( trying again in {check_every} minutes"
-                    )
-            time.sleep(60 * check_every)
-        except ConnectionError as e:
-            logger.error(e)
-            logger.info("Waiting 5 seconds and trying again...")
-            time.sleep(5)
-            continue
+                    except Exception as e:
+                        log_and_text_error_message(
+                            message="Failed to retrieve availability.",
+                            error=str(e),
+                            check_every=check_every,
+                            notified_errors=notified_errors,
+                        )
+                        continue
+                    notified[campground].add(start_date.date())
+            else:
+                logger.info(
+                    f"No availability found for {campground} :( "
+                    f"Trying again in {check_every} minutes."
+                )
+        time.sleep(60 * check_every)
 
 
 if __name__ == "__main__":
