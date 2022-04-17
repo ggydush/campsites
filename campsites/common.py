@@ -12,7 +12,6 @@ def make_get_request(url: str, params: Optional[dict[str, str]] = None) -> Any:
         raise ConnectionError(
             f"Status code: {response.status_code}. Error: {response.text}"
         )
-    raise Exception("OMG test")
     return json.loads(response.content)
 
 
