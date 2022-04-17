@@ -64,14 +64,14 @@ def log_and_text_error_message(
 
 
 @click.option(
-    "--sub_campground",
+    "--sub-campground",
     type=str,
     help="Some campgrounds have sub-campgrounds that you can specify with this argument",
     default=None,
     multiple=True,
 )
 @click.option(
-    "--calendar_date",
+    "--calendar-date",
     help="Specific date to start reservation mm/dd/yyyy (can specify multiple)",
     type=str,
     default=None,
@@ -87,13 +87,13 @@ def log_and_text_error_message(
     "--ignore", type=str, default=None, help="Specific campsite name to ignore"
 )
 @click.option(
-    "--require_same_site",
+    "--require-same-site",
     is_flag=True,
     default=False,
     help="Require campsite to be the same over all nights (no switching campsites)",
 )
 @click.option(
-    "--check_every",
+    "--check-every",
     help="Minutes to wait before checking again",
     type=int,
     default=5,
@@ -158,7 +158,7 @@ def main(
     check_every: int,
     ignore: str,
     notify: bool,
-    calendar_date: date,
+    calendar_date: list[str],
     sub_campground: list[str],
 ) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
@@ -170,7 +170,8 @@ def main(
 
     \b
     Examples:
-    # Search for Kirby Cove and Hawk Campground for Friday or Saturday availability this month
+    # Search for Kirby Cove and Hawk Campground for Friday or Saturday availability
+    # this month
     find-campsites -c "Kirby Cove" -c "Hawk Campground" -d Friday -d Saturday
     # Search for facility IDs in Millerton Lake SRA
     find-campsites -c "Millerton Lake SRA" --api reservecalifornia
