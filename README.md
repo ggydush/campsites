@@ -3,6 +3,7 @@
 Small tool to check for campsite availability and notify via text message using Twilio.
 
 ```
+▶ find-campsites --help
 Usage: find-campsites [OPTIONS]
 
   Search for campsite availability from recreation.gov or reservecalifornia.
@@ -14,13 +15,17 @@ Usage: find-campsites [OPTIONS]
   facility ID.
 
   Examples:
-  find-campsites -c "Kirby Cove" -d Friday -d Saturday
+  # Search for Kirby Cove and Hawk Campground for Friday or Saturday availability
+  # this month
+  find-campsites -c "Kirby Cove" -c "Hawk Campground" -d Friday -d Saturday
+  # Search for facility IDs in Millerton Lake SRA
   find-campsites -c "Millerton Lake SRA" --api reservecalifornia
+  # Search for specific campsite in Millerton Lake SRA
   find-campsites -c 1120 --api reservecalifornia
 
 Options:
   -c, --campground TEXT           Name of campground to search for
-                                  availability
+                                  availability (can specify multiple)
 
   -n, --nights INTEGER            Number of nights to stay  [default: 1]
   -d, --day [Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday]
@@ -32,13 +37,20 @@ Options:
                                   Reservation API to use  [default:
                                   recreation.gov]
 
-  --check_every INTEGER           Minutes to wait before checking again
-                                  [default: 60]
+  --check-every INTEGER           Minutes to wait before checking again
+                                  [default: 5]
 
-  --require_same_site             Require campsite to be the same over all
+  --require-same-site             Require campsite to be the same over all
                                   nights (no switching campsites)
 
+  --ignore TEXT                   Specific campsite name to ignore
   --notify                        Send text message if campsite is available
+  --calendar-date TEXT            Specific date to start reservation
+                                  mm/dd/yyyy (can specify multiple)
+
+  --sub-campground TEXT           Some campgrounds have sub-campgrounds that
+                                  you can specify with this argument
+
   --help                          Show this message and exit.
   ```
 
