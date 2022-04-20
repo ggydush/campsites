@@ -46,7 +46,7 @@ def create_log(
 
 
 def log_and_text_error_message(
-    message: str, error: str, check_every: int, notified_errors: Set[str]
+    message: str, error: str, check_every: int, notified_errors: defaultdict[str, int]
 ) -> None:
     date = str(datetime.now().date())
     error_message = (
@@ -57,8 +57,10 @@ def log_and_text_error_message(
     logger.error(error_message)
     if error_message not in notified_errors:
         try:
-            send_message(error_message)
-            notified_errors.add(error_message)
+            notified_errors[error_message] += 1
+            # If 3 of the same errors are observed in the same day, send a message.
+            if notified_errors[error_message] >= 3:
+                send_message(error_message)
         except Exception:
             pass
 
@@ -188,7 +190,7 @@ def main(
         raise ValueError("Nights must be greater than 1.")
     campgrounds = campground
     notified: defaultdict[str, Set[date]] = defaultdict(set)
-    notified_errors: Set[str] = set()
+    notified_errors: defaultdict[str, int] = defaultdict(lambda: 0)
     while True:
         start_date = datetime.today()
         if calendar_date:
