@@ -76,13 +76,13 @@ def get_all_campsites(
     months: int,
 ) -> list[RecreationGovCampsite]:
     all_sites: list[RecreationGovCampsite] = []
+    field_names = [x.name for x in dataclasses.fields(RecreationGovCampsite)]
     for _ in range(months):
         date_string = convert_date_to_string(start_date)
         params = {"start_date": date_string}
         url = f"{BASE_URL}{AVAILABILITY_ENDPOINT}{campground_id}/month?"
         # url = f"{BASE_URL}/camps/availability/campground/{campground_id}/month?"
         data = make_get_request(url, params)
-        field_names = [x.name for x in dataclasses.fields(RecreationGovCampsite)]
         for site in data["campsites"].values():
             site_data = {field: site[field] for field in field_names}
             all_sites.append(RecreationGovCampsite(**site_data))

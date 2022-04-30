@@ -1,11 +1,13 @@
+import dataclasses
+import logging
 from dataclasses import dataclass
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import logging
-import requests
 from typing import Any
 
-from campsites.campsite import Campsite, AvailableCampsite
+import requests
+from dateutil.relativedelta import relativedelta
+
+from campsites.campsite import AvailableCampsite, Campsite
 from campsites.common import make_get_request, make_post_request
 
 logging.basicConfig(
@@ -110,9 +112,11 @@ def get_all_campsites(
     logger.info(f"Found campground: {campground} (campground id: {campground_id})")
     campsites = response["Facility"]["Units"].values()
     results: list[ReserveCaliforniaCampsite] = []
+    field_names = [x.name for x in dataclasses.fields(ReserveCaliforniaCampsite)]
     for site in campsites:
         site["Campground"] = campground
-        results.append(ReserveCaliforniaCampsite(**site))
+        site_data = {field: site[field] for field in field_names}
+        results.append(ReserveCaliforniaCampsite(**site_data))
     return results
 
 

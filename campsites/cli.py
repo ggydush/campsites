@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from collections import defaultdict
 from datetime import date, datetime
@@ -65,6 +66,9 @@ def log_and_text_error_message(
             pass
 
 
+@click.option(
+    "--phone-number", type=str, help="Phone number to override .env file", default=None
+)
 @click.option(
     "--sub-campground",
     type=str,
@@ -168,6 +172,7 @@ def main(
     notify: bool,
     calendar_date: list[str],
     sub_campground: list[str],
+    phone_number: str,
 ) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
 
@@ -186,6 +191,9 @@ def main(
     # Search for specific campsite in Millerton Lake SRA
     find-campsites -c 1120 --api reservecalifornia
     """
+    if phone_number:
+        os.environ["TWILIO_TO_NUMBER"] = phone_number
+
     if nights < 1:
         raise ValueError("Nights must be greater than 1.")
     campgrounds = campground

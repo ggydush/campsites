@@ -2,7 +2,7 @@
 name = "campsites"
 version = "0.1.0"
 description = ""
-authors = ["Greg Gydush greggydush@gmail.com"]
+authors = ["Greg Gydush <greggydush@gmail.com>"]
 packages = [
   { include = "campsites" }
 ]
