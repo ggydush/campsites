@@ -10,9 +10,13 @@ Requires python 3.9. If you don't have python3, here are some suggested steps:
 
 1. install python 3.9 here: https://www.python.org/downloads/release/python-390/
 2. install pip https://phoenixnap.com/kb/install-pip-mac
-3. create virtual enviroment: `cd path/to/downloaded/campsites; python3 -m venv campsites3.9venv
-4. install poetry: pip3 install poetry
-5. install the campsites package: poetry install
+3. `git clone https://github.com/ggydush/campsites.git`
+4. `cd campsites`
+5. create virtual enviroment: `python3 -m venv venv3.9campsites`
+6. activate venv: `source venv3.9campsites/bin/activate`
+7. install poetry: `pip3 install poetry`
+8. install the campsites package: `poetry install`
+9. `find-campsites --help` or `poetry run find-campsites`
 
 You can still use with other python versions (like 3.7), but you  need to adapt the code. See [issue 3](https://github.com/ggydush/campsites/issues/3).
 
