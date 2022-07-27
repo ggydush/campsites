@@ -88,7 +88,7 @@ TWILIO_TO_NUMBER = "YOUR_PHONE_NUMBER"
 ```
 
 # Finding Campsites
-Enter the name of the campground as it appears on https://www.reservecalifornia.com/Web/ and `find-campsites` will return a table of facilities. Then use that facility id to search for availability.
+Enter the name of the campground as it appears on https://www.reservecalifornia.com/Web/ and `find-campsites` will return a table of facilities. Then use that facility id to search for availability. The other way to find the campsite ID is in the URL after getting deep into the booking. For Big Basin Redwoods, which ahs campground id of 3, the facility_id could be 333 for Seqouia group. See https://www.reservecalifornia.com/Web/#!park/3/333 to compare.
 
 ```
 ❯ find-campsites -c "Big Basin Redwoods SP" --api reservecalifornia
