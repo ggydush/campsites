@@ -86,3 +86,27 @@ TWILIO_AUTH_TOKEN="YOUR_TWILIO_AUTH"
 TWILIO_FROM_NUMBER="YOUR_TWILIO_NUMBER"
 TWILIO_TO_NUMBER = "YOUR_PHONE_NUMBER"
 ```
+
+# Finding Campsites
+Enter the name of the campground as it appears on https://www.reservecalifornia.com/Web/ and `find-campsites` will return a table of facilities. Then use that facility id to search for availability.
+
+```
+❯ find-campsites -c "Big Basin Redwoods SP" --api reservecalifornia
+INFO	2022-07-26 22:04:38,880	ReserveCalifornia must use facility ID. Searching for facility IDs using provided `campground_id` (note: this must be the park that the campground is in)
+INFO	2022-07-26 22:04:39,158	Found campground: Big Basin Redwoods SP (campground id: 3)
+INFO	2022-07-26 22:04:39,375	Found facilities in park:
+
+campground                                 facility_id
+Huckleberry Campground (sites 42-75)       336
+Lower Blooms Creek (sites 103-138)         332
+Sempervirens Campground (sites 157-188)    335
+Sequoia Group 1 & 2                        333
+Sky Meadow Group 1 & 2                     338
+Upper Blooms Creek (sites 139-156)         339
+Wastahi Campground (sites 76-102)          337
+
+<ctrl+c> to exit
+❯ find-campsites -c 336 --api reservecalifornia
+INFO	2022-07-26 22:05:50,679	Found campground: Huckleberry Campground (sites 42-75) (campground id: 336)
+INFO	2022-07-26 22:05:50,680	No availability found for 336 :( Trying again in 5 minutes.
+```
