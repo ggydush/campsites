@@ -1,5 +1,22 @@
 # Campsite availability via CLI
 
+Installation:
+```
+git clone https://github.com/ggydush/campsites.git
+cd campsites 
+poetry install
+```
+Requires python 3.9. If you don't have python3, here are some suggested steps:
+
+1. install python 3.9 here: https://www.python.org/downloads/release/python-390/
+2. install pip https://phoenixnap.com/kb/install-pip-mac
+3. create virtual enviroment: `cd path/to/downloaded/campsites; python3 -m venv campsites3.9venv
+4. install poetry: pip3 install poetry
+5. install the campsites package: poetry install
+
+You can still use with other python versions (like 3.7), but you  need to adapt the code. See [issue 3](https://github.com/ggydush/campsites/issues/3).
+
+# Usage
 Small tool to check for campsite availability and notify via text message using Twilio.
 
 ```
