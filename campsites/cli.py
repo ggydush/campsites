@@ -1,5 +1,4 @@
 import logging
-import os
 import time
 from collections import defaultdict
 from datetime import date, datetime
@@ -19,6 +18,7 @@ from campsites.reserve_california import (
     rc_get_all_available_campsites,
     rc_get_campground_url,
 )
+import dotenv
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,12 +41,12 @@ def create_log(
     get_campground_url: Callable[[str], str],
 ) -> str:
     return (
-        f"Found Availability:\n\n{create_table_string(table_data)}\n"
-        + f"Reserve a spot here: {get_campground_url(campground_id)}"
+        f"Reserve a spot here: {get_campground_url(campground_id)}\n"
+        + f"Found Availability:\n\n{create_table_string(table_data)}...\n"
     )
 
 
-def log_and_text_error_message(
+def log_and_notify_error_message(
     message: str, error: str, check_every: int, notified_errors: defaultdict[str, int]
 ) -> None:
     date = str(datetime.now().date())
@@ -59,16 +59,13 @@ def log_and_text_error_message(
     if error_message not in notified_errors:
         try:
             notified_errors[error_message] += 1
-            # If 3 of the same errors are observed in the same day, send a message.
+            # If 3 of the same errors are observed in the same day, send a notification.
             if notified_errors[error_message] >= 3:
                 send_message(error_message)
         except Exception:
             pass
 
 
-@click.option(
-    "--phone-number", type=str, help="Phone number to override .env file", default=None
-)
 @click.option(
     "--sub-campground",
     type=str,
@@ -90,7 +87,7 @@ def log_and_text_error_message(
     "--notify",
     is_flag=True,
     default=False,
-    help="Send text message if campsite is available",
+    help="Send email notification if campsite is available",
 )
 @click.option(
     "--ignore",
@@ -172,7 +169,6 @@ def main(
     notify: bool,
     calendar_date: list[str],
     sub_campground: list[str],
-    phone_number: str,
 ) -> None:
     """Search for campsite availability from recreation.gov or reservecalifornia.
 
@@ -191,8 +187,7 @@ def main(
     # Search for specific campsite in Millerton Lake SRA
     find-campsites -c 1120 --api reservecalifornia
     """
-    if phone_number:
-        os.environ["TWILIO_TO_NUMBER"] = phone_number
+    dotenv.load_dotenv("./.env.example")
 
     if nights < 1:
         raise ValueError("Nights must be greater than 1.")
@@ -234,7 +229,7 @@ def main(
                     campground_id=campground_id, start_date=start_date, months=months
                 )
             except Exception as e:
-                log_and_text_error_message(
+                log_and_notify_error_message(
                     message="Failed to retrieve availability.",
                     error=str(e),
                     check_every=check_every,
@@ -256,14 +251,14 @@ def main(
                 logger.info(log_message)
                 # Only notify if we have not sent a notification yet today
                 if notify and start_date.date() not in notified[campground]:
-                    # Text message has character max limit 1600, so we shorten table
-                    text_message = create_log(
+                    # Keep email concise by limiting the table size
+                    email_message = create_log(
                         table_data[0:2], campground_id, get_campground_url
                     )
                     try:
-                        send_message(text_message)
+                        send_message(email_message)
                     except Exception as e:
-                        log_and_text_error_message(
+                        log_and_notify_error_message(
                             message="Failed to retrieve availability.",
                             error=str(e),
                             check_every=check_every,

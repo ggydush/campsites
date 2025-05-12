@@ -1,6 +1,7 @@
 # Campsite availability via CLI
 
-Small tool to check for campsite availability and notify via text message using Twilio.
+Small tool to check for campsite availability and send email notifications when
+campsites become available.
 
 ```
 ▶ find-campsites --help
@@ -46,7 +47,7 @@ Options:
   --ignore TEXT                   Specific campsite name to ignore (can
                                   specify multiple)
 
-  --notify                        Send text message if campsite is available
+  --notify                        Send email notification if campsite is available
   --calendar-date TEXT            Specific date to start reservation
                                   mm/dd/yyyy (can specify multiple)
 
@@ -55,13 +56,25 @@ Options:
                                   specify multiple)
 
   --help                          Show this message and exit.
-  ```
+```
 
-Text message support can be added by creating a Twilio account and adding the following to either a `.env` file in the project root, or adding to environment variables.
+Email notification support can be added by configuring the following environment
+variables in a `.env` file in the project root, or adding them to your system
+environment variables:
 
 ```
-TWILIO_ACCOUNT_SID="YOUR_TWILIO_SID"
-TWILIO_AUTH_TOKEN="YOUR_TWILIO_AUTH"
-TWILIO_FROM_NUMBER="YOUR_TWILIO_NUMBER"
-TWILIO_TO_NUMBER = "YOUR_PHONE_NUMBER"
+EMAIL_SMTP_SERVER="smtp.gmail.com"
+EMAIL_SMTP_PORT="587"
+EMAIL_USERNAME="your.email@gmail.com"
+EMAIL_PASSWORD="your-app-password-or-email-password"
+EMAIL_FROM="your.email@gmail.com"
+EMAIL_TO="recipient.email@example.com"
 ```
+
+If using Gmail, you'll likely need to use an App Password instead of your
+regular password. See Google's guide on
+[App Passwords](https://support.google.com/accounts/answer/185833) for more
+information.
+
+A sample configuration file is available in `.env.example` that you can copy and
+modify.

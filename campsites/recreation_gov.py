@@ -59,7 +59,7 @@ def get_campground_id(query: str, url: str = f"{BASE_URL}{SEARCH_ENDPOINT}") -> 
 
 
 def rg_get_campground_url(campground_id: str) -> str:
-    return f"{BASE_URL}/camping/campgrounds/{campground_id}/availability"
+    return f"{BASE_URL}/camping/campgrounds/{campground_id}"
 
 
 def convert_date_to_string(date: datetime) -> str:
