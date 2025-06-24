@@ -253,7 +253,7 @@ def main(
                     x for x in available if hash(x) not in notified[campground]
                 ]
                 # Only notify if we have not sent a notification yet today
-                if notify and available_not_notified:f
+                if notify and available_not_notified:
                     # Keep email concise by limiting the table size
                     email_message = create_log(
                         table_data[0:2], campground_id, get_campground_url
