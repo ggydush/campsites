@@ -221,6 +221,20 @@ files = [
 ]
 
 [[package]]
+name = "dotenv"
+version = "0.9.9"
+description = "Deprecated package"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "dotenv-0.9.9-py2.py3-none-any.whl", hash = "sha256:29cf74a087b31dafdb5a446b6d7e11cbce8ed2741540e2339c69fbef92c94ce9"},
+]
+
+[package.dependencies]
+python-dotenv = "*"
+
+[[package]]
 name = "fake-useragent"
 version = "2.2.0"
 description = "Up-to-date simple useragent faker with real world database"
@@ -942,4 +956,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "75959a718e883929d3d92d1d5832fa3f360eb7bfa1c74c1a034b030c13267819"
+content-hash = "ab0eec01a0c49414743daee0b6f66766e9320bdfc1b6e6d40118ceece02d8ac1"
