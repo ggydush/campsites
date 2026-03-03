@@ -1,26 +1,41 @@
-[tool.poetry]
+[project]
 name = "campsites"
 version = "0.1.0"
 description = ""
-authors = ["Greg Gydush <greggydush@gmail.com>"]
-packages = [{ include = "campsites" }]
+authors = [{ name = "Greg Gydush", email = "greggydush@gmail.com" }]
+requires-python = ">=3.9,<4"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "fake-useragent>=2.2.0,<3",
+    "requests>=2.25.1,<3",
+    "click>=7.1.2,<8",
+    "python-dotenv>=0.17.0,<0.18",
+    "python-dateutil>=2.8.1,<3",
+    "twilio>=9.6.3,<10",
+    "dotenv>=0.9.9,<0.10",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-fake-useragent = "^2.2.0"
-requests = "^2.25.1"
-click = "^7.1.2"
-python-dotenv = "^0.17.0"
-python-dateutil = "^2.8.1"
-twilio = "^9.6.3"
-dotenv = "^0.9.9"
+[project.scripts]
+find-campsites = "campsites.cli:main"
 
-[tool.poetry.group.dev.dependencies]
-flake8 = "^4.0.1"
+[dependency-groups]
+dev = ["flake8>=4.0.1,<5"]
 
-[tool.poetry.scripts]
-find-campsites = 'campsites.cli:main'
+[tool.uv]
+default-groups = "all"
+
+[tool.uv.build-backend]
+module-name = ["campsites"]
+module-root = ""
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.18,<0.10.0"]
+build-backend = "uv_build"

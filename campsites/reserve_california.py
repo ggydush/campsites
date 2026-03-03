@@ -16,10 +16,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-BASE_URL = "https://calirdr.usedirect.com"
-SEARCH_ENDPOINT = "/rdr/rdr/fd/citypark/namecontains/"
-PLACE_ENDPOINT = "/rdr/rdr/search/place"
-AVAILABILITY_ENDPOINT = "/rdr/rdr/search/grid"
+BASE_URL = "https://california-rdr.prod.cali.rd12.recreation-management.tylerapp.com"
+SEARCH_ENDPOINT = "/rdr/fd/citypark/namecontains/"
+PLACE_ENDPOINT = "/rdr/search/place"
+AVAILABILITY_ENDPOINT = "/rdr/search/grid"
 DATE_FORMAT = "%m-%d-%Y"
 CAMPGROUND_URL = "https://www.reservecalifornia.com/"
 
