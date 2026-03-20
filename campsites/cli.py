@@ -201,6 +201,11 @@ def main(
         else:
             dates = []
         for campground in campgrounds:
+            if campground.isdigit() and api == "recreation.gov":
+                logger.error(
+                    "Did you mean to use --api reservecalifornia? Campground IDs are only valid for that API."
+                )
+                return
             if api == "reservecalifornia":
                 if not campground.isdigit():
                     logger.info(
@@ -220,11 +225,28 @@ def main(
                 get_campground_url = rg_get_campground_url
                 get_all_available_campsites = rg_get_all_available_campsites
             try:
-                campground_id = (
-                    campground
-                    if api == "reservecalifornia"
-                    else get_campground_id(campground)
-                )
+                try:
+                    campground_id = (
+                        campground
+                        if api == "reservecalifornia"
+                        else get_campground_id(campground)
+                    )
+                except ValueError as e:
+                    logger.info(
+                        "Campsite not found in recreation.gov, trying reserve california..."
+                    )
+                    try:
+                        facility_id_table = create_table_string(
+                            get_facility_ids(campground)
+                        )
+                        logger.info(
+                            "Found campsite with reserve california. Use --api reservecalifornia with -c and a facility ID below"
+                        )
+                        print(f"\n{facility_id_table}\n")
+                        return
+                    except Exception:
+                        logger.error(str(e))
+                        return
                 available = get_all_available_campsites(
                     campground_id=campground_id, start_date=start_date, months=months
                 )
