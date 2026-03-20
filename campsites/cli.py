@@ -49,11 +49,8 @@ def create_log(
 def log_and_notify_error_message(
     message: str, error: str, check_every: int, notified_errors: defaultdict[str, int]
 ) -> None:
-    date = str(datetime.now().date())
     error_message = (
-        f"{message} Trying again in {check_every} minutes.\n"
-        f"Error: {error}\n"
-        f"Date: {date}"
+        f"{message} Trying again in {check_every} minutes.\nError: {error}\n"
     )
     logger.error(error_message)
     if error_message not in notified_errors:
