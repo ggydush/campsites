@@ -194,6 +194,7 @@ def main(
     while True:
         start_date = datetime.today()
         if calendar_date:
+            start_date = datetime.strptime(calendar_date[0], "%m/%d/%Y")  # type: ignore
             dates = [datetime.strptime(x, "%m/%d/%Y") for x in calendar_date]  # type: ignore
         else:
             dates = []

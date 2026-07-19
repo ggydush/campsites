@@ -20,7 +20,6 @@ BASE_URL = "https://california-rdr.prod.cali.rd12.recreation-management.tylerapp
 SEARCH_ENDPOINT = "/rdr/fd/citypark/namecontains/"
 PLACE_ENDPOINT = "/rdr/search/place"
 AVAILABILITY_ENDPOINT = "/rdr/search/grid"
-DATE_FORMAT = "%m-%d-%Y"
 CAMPGROUND_URL = "https://www.reservecalifornia.com/"
 
 
@@ -99,6 +98,7 @@ def get_facility_ids(
 def get_all_campsites(
     campground_id: str, start_date: datetime, months: int
 ) -> list[ReserveCaliforniaCampsite]:
+    DATE_FORMAT = "%Y-%m-%d"
     data = {
         "FacilityId": campground_id,
         "StartDate": start_date.strftime(DATE_FORMAT),
